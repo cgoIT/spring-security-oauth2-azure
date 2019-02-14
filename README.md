@@ -42,7 +42,7 @@ The config properties are:
 
 ## Troubleshooting ScribeJava
 
-While writing this plugin, I ran into a ScribeJava version issue in `grails.plugin.springsecurity.oauth2.service.OAuth2AbstractProviderService.buildScribeService()`.  
+While writing this plugin, I ran into a ScribeJava version issue in `OAuth2AbstractProviderService.buildScribeService()`.
 It seems that the `com.github.scribejava.core.builder.ServiceBuilder` constructor implementation was changed between v2 and v6 (surprise!)  I fixed
 the issue by overriding the `buildScribeService()` method in my custom `ProviderService`.  If you are seeing "Invalid API key" errors from
 other `spring-security-oauth2` provider extensions after installing this plugin, that is likely the cause.
