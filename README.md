@@ -14,7 +14,8 @@ This plugin is available through the [Binx Health Bintray](https://bintray.com/b
 
 ## Configuration
 
-The following properties may be configured in `application.yml` or `application.groovy`, as you prefer.
+Follow the [`spring-security-oauth2`](http://plugins.grails.org/plugin/matrixcrawler/spring-security-oauth2) configuration instructions,
+then configure the following extension-specific properties:
 
 ```yaml
 grails:
