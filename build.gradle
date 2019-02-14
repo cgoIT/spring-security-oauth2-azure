@@ -9,7 +9,7 @@ buildscript {
     }
 }
 
-version "1.0"
+version "0.1.14"
 group "com.binxhealth"
 
 apply plugin:"eclipse"
@@ -54,7 +54,6 @@ dependencies {
     // Spring Security
     compile 'org.grails.plugins:spring-security-core:3.2.1'
     compile 'org.grails.plugins:spring-security-oauth2:1.1.0'
-
     compile 'com.github.scribejava:scribejava-apis:6.3.0'
 }
 
@@ -66,17 +65,32 @@ bootRun {
 }
 // enable if you wish to package this plugin as a standalone application
 bootRepackage.enabled = false
+
 grailsPublish {
     // TODO: Provide values here
-    user = 'user'
-    key = 'key'
-    githubSlug = 'foo/bar'
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+    userOrg = 'binxhealth'
+    githubSlug = 'spring-security-oauth2-azure'
     license {
         name = 'Apache-2.0'
     }
-    title = "My Plugin"
-    desc = "Full plugin description"
-    developers = [johndoe:"John Doe"]
+    title = "spring-security-oauth2-azure"
+    desc = "An extension for the Grails 3 spring-security-oauth2 plugin to support Microsoft Azure AD"
+    developers = [mauracwarner:"Maura Warner"]
+}
+bintray {
+    pkg {
+        userOrg = 'binxhealth' // If you want to publish to an organization
+        repo = 'grails-plugins'
+        name = "$project.name"
+        issueTrackerUrl = "https://github.com/binxhealth/spring-security-oauth2-azure/issues"
+        vcsUrl = "https://github.com/binxhealth/spring-security-oauth2-azure"
+        version {
+            attributes = ['grails-plugin': "$project.group:$project.name"]
+            name = project.version
+        }
+    }
 }
 
 
