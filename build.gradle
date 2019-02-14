@@ -9,7 +9,7 @@ buildscript {
     }
 }
 
-version "0.1.14"
+version "1.0"
 group "com.binxhealth"
 
 apply plugin:"eclipse"
@@ -76,9 +76,10 @@ grailsPublish {
         name = 'Apache-2.0'
     }
     title = "spring-security-oauth2-azure"
-    desc = "An extension for the Grails 3 spring-security-oauth2 plugin to support Microsoft Azure AD"
+    desc = "A provider extension for the Grails 3 spring-security-oauth2 plugin to support Microsoft Azure AD"
     developers = [mauracwarner:"Maura Warner"]
 }
+
 bintray {
     pkg {
         userOrg = 'binxhealth' // If you want to publish to an organization
@@ -92,7 +93,6 @@ bintray {
         }
     }
 }
-
 
 assets {
     packagePlugin = true
