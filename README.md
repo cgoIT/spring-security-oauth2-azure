@@ -3,11 +3,10 @@
 This is a provider extension for the Grails 3 plugin [`spring-security-oauth2`](http://plugins.grails.org/plugin/matrixcrawler/spring-security-oauth2) 
 to support Microsoft Azure AD.
 
-**NB:** This extension uses a much later version of [ScribeJava](https://github.com/scribejava/scribejava) than `spring-security-oauth2`.  
-The base plugin uses v2.7.3; this one uses v6.3.0.  I am using a newer version because support for Microsoft Azure AD was only added 
-to ScribeJava in early v6.  This extension should not break `spring-security-oauth2`, but upgrading ScribeJava may break other plugins 
-or extensions, including `spring-security-oauth2` provider extensions, that rely on earlier versions of ScribeJava.  Please see the 
-end of this README for some notes on ScribeJava version issues I encountered.
+**NB:** This extension uses a much later version of [ScribeJava](https://github.com/scribejava/scribejava) than `spring-security-oauth2`.  The base plugin uses v2.7.3;
+this one uses v6.3.0.  I am using a newer version because support for Microsoft Azure AD was only added to ScribeJava in early v6.  This extension
+should not break `spring-security-oauth2`, but upgrading ScribeJava may break other plugins or extensions, including `spring-security-oauth2`
+provider extensions, that rely on earlier versions of ScribeJava.  Please see the end of this README for some notes on ScribeJava version issues I encountered.
 
 ## Installation
 
