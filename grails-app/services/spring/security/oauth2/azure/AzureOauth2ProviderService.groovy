@@ -5,7 +5,6 @@ import com.github.scribejava.core.builder.api.DefaultApi20
 import com.github.scribejava.core.model.OAuth2AccessToken
 import com.github.scribejava.core.oauth.OAuth20Service
 import grails.core.GrailsApplication
-import grails.gorm.transactions.Transactional
 import grails.plugin.springsecurity.oauth2.service.OAuth2AbstractProviderService
 import grails.plugin.springsecurity.oauth2.token.OAuth2SpringToken
 import grails.plugin.springsecurity.oauth2.util.OAuth2ProviderConfiguration
@@ -13,12 +12,11 @@ import groovy.json.JsonSlurper
 import org.springframework.util.Base64Utils
 import javax.annotation.PostConstruct
 
-@Transactional
 class AzureOauth2ProviderService extends OAuth2AbstractProviderService {
 
     GrailsApplication grailsApplication
 
-    private String appId
+    protected String appId
 
     @PostConstruct
     void init() {
@@ -65,6 +63,31 @@ class AzureOauth2ProviderService extends OAuth2AbstractProviderService {
     }
 
     /**
+     * Builds the API instance required to interact with Azure AD.
+     *
+     * Normally I would leave this to spring-security-oauth2, but my plugin depends on a newer version of ScribeJava,
+     * and the ServiceBuilder implementation has changed slightly between v2 and v6.  I had to override this method in
+     * order to provide the ServiceBuilder with the API key on instantiation, instead of instantiating the builder and
+     * then supplying the API key, which is the spring-security-oauth2 behavior.
+     *
+     * @param providerConfiguration
+     * @return GrailsMicrosoftAzureActiveDirectoryApi
+     */
+    OAuth20Service buildScribeService(OAuth2ProviderConfiguration providerConfiguration) {
+        ServiceBuilder serviceBuilder = new ServiceBuilder(providerConfiguration.apiKey)
+            .apiSecret(providerConfiguration.apiSecret)
+
+        if (providerConfiguration.callbackUrl) {
+            serviceBuilder.callback(providerConfiguration.callbackUrl)
+        }
+        if (providerConfiguration.debug) {
+            serviceBuilder.debug()
+        }
+
+        serviceBuilder.build(new GrailsMicrosoftAzureActiveDirectoryApi())
+    }
+
+    /**
      * This method parses and verifies the id_token param returned by Azure AD on successful
      * authentication.
      * {@see https://docs.microsoft.com/en-us/azure/active-directory/develop/id-tokens}
@@ -85,19 +108,6 @@ class AzureOauth2ProviderService extends OAuth2AbstractProviderService {
         String username = payloadClaims.unique_name
 
         new AzureOauth2SpringToken(accessToken, oid, username)
-    }
-
-    OAuth20Service buildScribeService(OAuth2ProviderConfiguration providerConfiguration) {
-        ServiceBuilder serviceBuilder = new ServiceBuilder(providerConfiguration.apiKey)
-            .apiSecret(providerConfiguration.apiSecret)
-        if (providerConfiguration.callbackUrl) {
-            serviceBuilder.callback(providerConfiguration.callbackUrl)
-        }
-        if (providerConfiguration.debug) {
-            serviceBuilder.debug()
-        }
-
-        serviceBuilder.build(new GrailsMicrosoftAzureActiveDirectoryApi())
     }
 
     private void verifyIdToken(Map payloadClaims) {
