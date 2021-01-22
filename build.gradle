@@ -5,23 +5,65 @@ buildscript {
     }
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
-        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.14.2"
+        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.1.0"
     }
 }
 
-version "1.0.0"
+plugins {
+    id "com.jfrog.bintray" version "1.8.5"
+}
+
+version "1.0.2-patched"
 group "com.binxhealth"
 
-apply plugin:"eclipse"
 apply plugin:"idea"
 apply plugin:"org.grails.grails-plugin"
 apply plugin:"org.grails.grails-plugin-publish"
 apply plugin:"asset-pipeline"
 apply plugin:"org.grails.grails-gsp"
+apply plugin:"maven-publish"
+
+ext {
+    grailsVersion = project.grailsVersion
+    gradleWrapperVersion = project.gradleWrapperVersion
+    repoName = rootProject.name
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
     mavenLocal()
     maven { url "https://repo.grails.org/grails/core" }
+}
+
+allprojects { proj ->
+    tasks.withType(JavaCompile) {
+        //I don't believe those warnings add value given modern IDEs
+        options.warnings = false
+        options.encoding = 'UTF-8'
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.grails:grails-bom:$grailsVersion"
+    }
+    applyMavenExclusions false
+}
+
+jar {
+    exclude "test/**"
+    exclude "test/**/**"
+}
+
+sourcesJar {
+    exclude "test/**"
+    exclude "test/**/**"
+
+    classifier = 'sources'
 }
 
 dependencies {
@@ -42,11 +84,13 @@ dependencies {
     compile "org.grails.plugins:async"
     compile "org.grails.plugins:scaffolding"
     compile "org.grails.plugins:gsp"
+    compile "com.microsoft.graph:microsoft-graph:2.5.0"
+    compile "com.microsoft.graph:microsoft-graph-auth:0.2.0"
     console "org.grails:grails-console"
     profile "org.grails.profiles:web-plugin"
     provided "org.grails:grails-plugin-services"
     provided "org.grails:grails-plugin-domain-class"
-    runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.14.2"
+    runtime "com.bertramlabs.plugins:asset-pipeline-grails:3.1.0"
     testCompile "org.grails:grails-gorm-testing-support"
     testCompile "org.grails:grails-plugin-testing"
     testCompile "org.grails:grails-web-testing-support"
@@ -66,33 +110,44 @@ bootRun {
 // enable if you wish to package this plugin as a standalone application
 bootRepackage.enabled = false
 
-grailsPublish {
-    // TODO: Provide values here
-    user = System.getenv('BINTRAY_USER')
-    key = System.getenv('BINTRAY_KEY')
-    userOrg = 'binxhealth'
-    githubSlug = 'spring-security-oauth2-azure'
-    license {
-        name = 'Apache-2.0'
-    }
-    title = "spring-security-oauth2-azure"
-    desc = "A provider extension for the Grails 3 spring-security-oauth2 plugin to support Microsoft Azure AD"
-    developers = [mauracwarner:"Maura Warner"]
+task wrapper(type: Wrapper) {
+    gradleVersion = gradleWrapperVersion
 }
 
 bintray {
+    publications = ['maven']
+
+    publish = true
+
     pkg {
-        userOrg = 'binxhealth' // If you want to publish to an organization
-        repo = 'grails-plugins'
-        name = "$project.name"
-        issueTrackerUrl = "https://github.com/binxhealth/spring-security-oauth2-azure/issues"
-        vcsUrl = "https://github.com/binxhealth/spring-security-oauth2-azure"
+        repo = 'maven'
+        name = project.name
+        websiteUrl = "https://github.com/cgoIT/$repoName"
+        issueTrackerUrl = "https://github.com/cgoIT/$repoName/issues"
+        vcsUrl = "https://github.com/cgoIT/${repoName}.git"
+        licenses = ['Apache-2.0']
+        labels = ['grails', 'plugin', 'grails-plugin', 'oauth2', 'azure', repoName]
         version {
-            attributes = ['grails-plugin': "$project.group:$project.name"]
             name = project.version
+            attributes = ['grails-plugin': "$project.group:$project.name"]
         }
     }
 }
+
+grailsPublish {
+    githubSlug = "cgoIT/$repoName"
+    license {
+        name = 'Apache-2.0'
+    }
+    title = "Grails Azure OAuth2 Plugin"
+    desc = "Grails Azure OAuth2 Plugin"
+    websiteUrl = "https://github.com/cgoIT/$repoName"
+    issueTrackerUrl = "https://github.com/cgoIT/$repoName/issues"
+    vcsUrl = "https://github.com/cgoIT/${repoName}.git"
+    developers = [cgoIT:"Carsten Götzinger"]
+}
+
+bintrayUpload.dependsOn = [sourcesJar]
 
 assets {
     packagePlugin = true

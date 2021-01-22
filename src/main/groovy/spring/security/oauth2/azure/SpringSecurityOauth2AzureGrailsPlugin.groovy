@@ -1,13 +1,17 @@
 package spring.security.oauth2.azure
 
+import grails.plugin.springsecurity.SpringSecurityUtils
 import grails.plugin.springsecurity.oauth2.SpringSecurityOauth2BaseService
 import grails.plugin.springsecurity.oauth2.exception.OAuth2Exception
 import grails.plugins.*
+import grails.util.Holders
+import groovy.util.logging.Slf4j
 
+@Slf4j
 class SpringSecurityOauth2AzureGrailsPlugin extends Plugin {
 
     // the version or versions of Grails the plugin is designed for
-    def grailsVersion = "3.3.5 > *"
+    def grailsVersion = "3.3.10 > *"
     // resources that are excluded from plugin packaging
     def pluginExcludes = [
         "grails-app/views",
@@ -25,7 +29,7 @@ class SpringSecurityOauth2AzureGrailsPlugin extends Plugin {
     def profiles = ['web']
 
     // URL to the plugin's documentation
-    def documentation = "https://github.com/binxhealth/spring-security-oauth2-azure/blob/master/README.md"
+    def documentation = "https://github.com/cgoIT/spring-security-oauth2-azure/blob/master/README.md"
 
     // License: one of 'APACHE', 'GPL2', 'GPL3'
     def license = "APACHE"
@@ -34,21 +38,25 @@ class SpringSecurityOauth2AzureGrailsPlugin extends Plugin {
     def organization = [ name: "Binx Health", url: "http://mybinxhealth.com" ]
 
     // Location of the plugin's issue tracker.
-    def issueManagement = [ system: "GitHub", url: "https://github.com/binxhealth/spring-security-oauth2-azure/issues" ]
+    def issueManagement = [ system: "GitHub", url: "https://github.com/cgoIT/spring-security-oauth2-azure/issues" ]
 
     // Online location of the plugin's browseable source code.
-    def scm = [ url: "https://github.com/binxhealth/spring-security-oauth2-azure" ]
+    def scm = [ url: "https://github.com/cgoIT/spring-security-oauth2-azure" ]
 
     void doWithApplicationContext() {
-        SpringSecurityOauth2BaseService oAuth2BaseService = grailsApplication.mainContext.getBean(
-            'springSecurityOauth2BaseService') as SpringSecurityOauth2BaseService
-        AzureOauth2ProviderService oath2ProviderService = grailsApplication.mainContext.getBean(
-            'azureOauth2ProviderService') as AzureOauth2ProviderService
-        try {
-            oAuth2BaseService.registerProvider(oath2ProviderService)
-        } catch (OAuth2Exception exception) {
-            log.error("There was an oAuth2Exception", exception)
-            log.error("OAuth2 Azure not loaded")
+        def active = grailsApplication.config.grails?.plugin?.springsecurity?.oauth2?.active
+        def enabled = (active instanceof Boolean) ? active : true
+        if (enabled && SpringSecurityUtils.securityConfig?.active) {
+            SpringSecurityOauth2BaseService oAuth2BaseService = grailsApplication.mainContext.getBean(
+                    'springSecurityOauth2BaseService') as SpringSecurityOauth2BaseService
+            AzureOauth2ProviderService oath2ProviderService = grailsApplication.mainContext.getBean(
+                    'azureOauth2ProviderService') as AzureOauth2ProviderService
+            try {
+                oAuth2BaseService.registerProvider(oath2ProviderService)
+            } catch (OAuth2Exception exception) {
+                log.error("There was an oAuth2Exception", exception)
+                log.error("OAuth2 Azure not loaded")
+            }
         }
     }
 
